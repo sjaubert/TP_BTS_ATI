@@ -1,6 +1,4 @@
-## ![Logo UIMM](logo_uimm_placeholder.jpg) Pôle Formation UIMM CVDL (S. Jaubert) 
+## ![Logo UIMM](logo_uimm_placeholder.jpg) Pôle Formation UIMM CVDL - TP BTS ATI (S. Jaubert) 
 
-[Installation Gemini-cli](https://sjaubert.github.io/Cours-IA/Gemin-cli%20V2.html?target=_blank)
+[Corrigé Analyse MSA Robot FANUC](https://sjaubert.github.io/Corrigé-Analyse--MSA.html?target=_blank)
 
-
-TP BTS ATI
