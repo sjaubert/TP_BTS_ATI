@@ -25,6 +25,12 @@ library(plotly)   # Pour le graphique 3D interactif
 library(knitr)    # Pour afficher de jolis tableaux (kable)
 ```
 
+```{r, echo=FALSE, fig.align='right', out.width='10%'}
+knitr::include_graphics("logo_uimm_placeholder.jpg")
+```
+
+
+
 ## Introduction et Objectifs de l'Analyse
  
  Ce rapport présente l'analyse statistique des données de répétabilité (df.csv) d'un robot FANUC.
@@ -93,7 +99,7 @@ La $p_{value}$ (colonne Pr(>F)) est de `r round(summary(modele_anova)[[1]][["Pr(
 Puisque la $p_{value}$ > `r round(summary(modele_anova)[[1]][["Pr(>F)"]][1], 3)`, nous ne pouvons pas rejeter l'hypothèse nulle.
 
 Conclusion de l'ANOVA : Il n'y a pas de différence statistiquement significative entre les moyennes des trois comparateurs. Notre système de mesure est validé !
-
+  
 ## Vérification des Hypothèses (Normalité)
 
 **Objectif** : Valider l'hypothèse de normalité des données, qui sous-tend l'utilisation de l'ANOVA et des calculs statistiques de capabilité.
@@ -113,11 +119,9 @@ normality_results <- data.frame(
 kable(normality_results, caption = "Résultats des Tests de Normalité (Shapiro-Wilk)", digits = 4)
 ```
 
-**Interprétation de la Normalité** :L'hypothèse nulle ($H_0$) du test de Shapiro-Wilk est "Les données suivent une loi normale".
+**Interprétation de la Normalité** : L'hypothèse nulle ($H_0$) du test de Shapiro-Wilk est "Les données suivent une loi normale".
 
-Pour les axes X, Y, et Z, toutes les $p_{values}$ sont > 0.05.Conclusion : Nous considérons que les données sont normalement distribuées. 
-
-Le procédé est stable et prévisible.
+Pour les axes X, Y, et Z, toutes les $p_{values}$ sont > 0.05.Conclusion : Nous considérons que les données sont normalement distribuées. Le procédé est stable et prévisible.
 
 ## Calcul de la Répétabilité Robot (ISO 9283)
 
