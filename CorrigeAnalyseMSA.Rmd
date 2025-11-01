@@ -36,7 +36,9 @@ library(knitr)    # Pour afficher de jolis tableaux (kable)
  Notre démarche se déroule en trois temps :
  
  1. **Valider le Système de Mesure (ANOVA)** : Avant de juger le robot, nous devons prouver que nos 3 comparateurs (C1, C2, C3) sont interchangeables et ne présentent pas de biais systématique.
- ![fff](XYZ.JPG)
+ 
+ ![](XYZ.JPG)
+ 
  2. **Valider les Hypothèses (Normalité)** : Nous vérifierons si la distribution des erreurs suit une Loi Normale, ce qui est un prérequis pour de nombreux calculs de capabilité.
  
  3. **Qualifier le Robot (ISO 9283)** : Une fois le système de mesure et les hypothèses validés, nous calculerons la répétabilité de position $RP_L$ pour conclure sur la conformité du robot.
