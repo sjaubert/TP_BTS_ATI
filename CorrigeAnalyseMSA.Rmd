@@ -1,5 +1,7 @@
 ---
-title: "Analyse Avancée de la Qualification d'un Robot FANUC"
+title: |
+  <img src="logo_uimm_placeholder.jpg" alt="Logo UIMM" style="float: right; height: 72px; margin-left: 24px;">
+  <span style="font-size: 0.8em; font-weight: bold;">TP & Analyse de Données : Qualification de Performance d'un Robot FANUC</span>
 author: "S. JAUBERT"
 date: "`r format(Sys.Date(), '%d/%m/%Y')`"
 output:
@@ -9,9 +11,7 @@ output:
     theme: united
     number_sections: true
 ---
-```{r fig1,  fig.align='right' , out.width = "100px",echo=FALSE}
-knitr::include_graphics("logo_uimm_placeholder.jpg")
-```
+
 
 
 ```{r setup, include=FALSE}
