@@ -36,6 +36,7 @@ library(knitr)    # Pour afficher de jolis tableaux (kable)
  Notre démarche se déroule en trois temps :
  
  1. **Valider le Système de Mesure (ANOVA)** : Avant de juger le robot, nous devons prouver que nos 3 comparateurs (C1, C2, C3) sont interchangeables et ne présentent pas de biais systématique.
+ <br>
  
  ![](XYZ.JPG)
  
