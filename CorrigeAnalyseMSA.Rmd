@@ -1,0 +1,198 @@
+---
+title: |
+  <img src="logo_uimm_placeholder.jpg" alt="Logo UIMM" style="float: right; height: 72px; margin-left: 24px;">
+  <span style="font-size: 0.8em; font-weight: bold;">TP & Analyse de Données : Qualification de Performance d'un Robot FANUC</span>
+author: "S. JAUBERT"
+date: "`r format(Sys.Date(), '%d/%m/%Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: united
+    number_sections: true
+---
+
+
+
+```{r setup, include=FALSE}
+# Bloc de configuration initial
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = 'center')
+
+# Chargement des bibliothèques essentielles
+library(readr)    # Pour lire les fichiers CSV
+library(dplyr)    # Pour la manipulation de données (select, pivot_longer...)
+library(tidyr)    # Pour la mise en forme des données (pivot_longer)
+library(ggplot2)  # Pour les graphiques statiques (histogrammes, boxplots)
+library(plotly)   # Pour le graphique 3D interactif
+library(knitr)    # Pour afficher de jolis tableaux (kable)
+```
+
+```{r, echo=FALSE, fig.align='right', out.width='10%'}
+knitr::include_graphics("logo_uimm_placeholder.jpg")
+```
+
+
+
+## Introduction et Objectifs de l'Analyse
+ 
+ Ce rapport présente l'analyse statistique des données de répétabilité (df.csv) d'un robot FANUC.
+ 
+ L'objectif est de qualifier la performance du robot et la fiabilité de notre système de mesure.
+ 
+ Notre démarche se déroule en trois temps :
+ 
+ 1. **Valider le Système de Mesure (ANOVA)** : Avant de juger le robot, nous devons prouver que nos 3 comparateurs (X, Y, Z) sont interchangeables et ne présentent pas de biais systématique.
+ 2. **Valider les Hypothèses (Normalité)** : Nous vérifierons si la distribution des erreurs suit une Loi Normale, ce qui est un prérequis pour de nombreux calculs de capabilité.
+ 
+ 3. **Qualifier le Robot (ISO 9283)** : Une fois le système de mesure et les hypothèses validés, nous calculerons la répétabilité de position $RP_L$ pour conclure sur la conformité du robot.
+ 
+ 
+## Chargement et Préparation des Données
+
+Les données sont lues depuis le fichier df.csv.
+
+```{r}
+# Charger les données (en spécifiant le délimiteur point-virgule)
+donnees_brutes <- read_csv("df.csv")
+
+# Sélectionner uniquement les colonnes de mesure X, Y, Z
+donnees <- donnees_brutes %>%
+  select(X, Y, Z)
+
+# Afficher un aperçu des données
+kable(head(donnees), caption = "Aperçu des 30 mesures (en mm)")
+```
+## Analyse du Système de Mesure (ANOVA)
+
+Objectif : Déterminer si les 3 comparateurs (X, Y, Z) fournissent des mesures statistiquement identiques.
+
+### Visualisation des Distributions (Boxplots)
+
+```{r}
+# Mettre les données au format long
+donnees_long <- donnees %>%
+  pivot_longer(cols = c(X, Y, Z), names_to = "Comparateur", values_to = "Mesure")
+
+# Créer le Boxplot
+ggplot(donnees_long, aes(x = Comparateur, y = Mesure, fill = Comparateur)) +
+  geom_boxplot() +
+  labs(title = "Distribution des Mesures par Comparateur",
+       y = "Écart mesuré (mm)",
+       x = "Comparateur") +
+  theme_minimal()
+```
+**Analyse visuelle** : Le Boxplot montre que les médianes (le trait gras) des trois comparateurs ne sont pas parfaitement alignées. Les comparateurs X et Z sont relativement bien centrés en zéro, tandis que Y n'est pas bien centré. L'ANOVA va nous dire si cet écart est statistiquement significatif ou simplement dû au hasard.
+
+### Test Statistique ANOVA
+Nous testons l'hypothèse nulle ($H_0$) : "Les moyennes des 3 comparateurs sont égales"
+
+```{r}
+# Réaliser l'ANOVA
+modele_anova <- aov(Mesure ~ Comparateur, data = donnees_long)
+
+# Afficher le résumé de l'ANOVA
+summary(modele_anova)
+```
+
+Interprétation de l'ANOVA :La ligne Comparateur nous donne le résultat du test.
+
+La $p_{value}$ (colonne Pr(>F)) est de `r round(summary(modele_anova)[[1]][["Pr(>F)"]][1], 3)`.
+
+Puisque la $p_{value}$ > `r round(summary(modele_anova)[[1]][["Pr(>F)"]][1], 3)`, la $p_{value}$ n'est pas suffisamment faible pour que nous rejetions l'hypothèse nulle.
+
+<<<<<<< HEAD:Corrigé Analyse  MSA.Rmd
+Conclusion de l'ANOVA : Il n'y a pas de différence statistiquement significative entre les moyennes des trois comparateurs. Notre système de mesure est validé !
+  
+=======
+**Conclusion de l'ANOVA** : Il n'y a pas de différence statistiquement significative entre les moyennes des trois comparateurs.
+
+>>>>>>> 66767a70e1b5e44440c942f64d4565b3b5a4a5cf:CorrigeAnalyseMSA.Rmd
+## Vérification des Hypothèses (Normalité)
+
+**Objectif** : Valider l'hypothèse de normalité des données, qui sous-tend l'utilisation de l'ANOVA et des calculs statistiques de capabilité.
+
+```{r}
+# Test de Shapiro-Wilk sur les 3 axes
+shapiro_X <- shapiro.test(donnees$X)
+shapiro_Y <- shapiro.test(donnees$Y)
+shapiro_Z <- shapiro.test(donnees$Z)
+
+# Affichage des résultats
+normality_results <- data.frame(
+  Jeu_de_donnees = c("Axe X", "Axe Y", "Axe Z"),
+  p_value = c(shapiro_X$p.value, shapiro_Y$p.value, shapiro_Z$p.value)
+)
+
+kable(normality_results, caption = "Résultats des Tests de Normalité (Shapiro-Wilk)", digits = 4)
+```
+
+**Interprétation de la Normalité** : L'hypothèse nulle ($H_0$) du test de Shapiro-Wilk est "Les données suivent une loi normale".
+
+<<<<<<< HEAD:Corrigé Analyse  MSA.Rmd
+Pour les axes X, Y, et Z, toutes les $p_{values}$ sont > 0.05.Conclusion : Nous considérons que les données sont normalement distribuées. Le procédé est stable et prévisible.
+=======
+Pour les axes X, Y, et Z, toutes les $p_{values}$ sont > 0.05.
+
+**Conclusion** : Nous considérons que les données sont normalement distribuées. 
+
+Le procédé est stable et prévisible.
+>>>>>>> 66767a70e1b5e44440c942f64d4565b3b5a4a5cf:CorrigeAnalyseMSA.Rmd
+
+## Calcul de la Répétabilité Robot (ISO 9283)
+
+**Objectif** : Maintenant que le système de mesure et les hypothèses sont validés, nous pouvons qualifier la performance 3D du robot.
+
+### Visualisation 3D du Nuage de Dispersion
+
+```{r}
+# Créer le graphique 3D interactif
+plot_ly(donnees, x = ~X, y = ~Y, z = ~Z, type = 'scatter3d', mode = 'markers',
+        marker = list(size = 5, color = 'blue', opacity = 0.8)) %>%
+  layout(title = "Dispersion 3D des 30 Points de Mesure",
+         scene = list(xaxis = list(title = 'Axe X (mm)'),
+                      yaxis = list(title = 'Axe Y (mm)'),
+                      zaxis = list(title = 'Axe Z (mm)')))
+```
+
+**Analyse visuelle** : Le nuage de points semble bien réparti, sans point aberrant.
+
+### Calcul de la Répétabilité $RP_L$
+
+```{r}
+# 1. Calculer le barycentre (position moyenne du nuage de points)
+barycentre <- c(mean(donnees$X), mean(donnees$Y), mean(donnees$Z))
+
+# 2. Calculer les distances euclidiennes (l_j) de chaque point au barycentre
+distances_l <- sqrt((donnees$X - barycentre[1])^2 + (donnees$Y - barycentre[2])^2 + (donnees$Z - barycentre[3])^2)
+
+# 3. Calculer la moyenne de ces distances (l_bar)
+l_bar <- mean(distances_l)
+
+# 4. Calculer l'écart-type de ces distances (S_L)
+S_L <- sd(distances_l)
+
+# 5. Appliquer la formule de la norme ISO 9283
+RP_L <- l_bar + 3 * S_L
+
+# Afficher les résultats
+results <- data.frame(
+  Indicateur = c("Rayon moyen de dispersion (l_bar)", "Ecart-type des rayons (S_L)", "Répétabilité ISO 9283 (RP_L)"),
+  Valeur_mm = c(l_bar, S_L, RP_L)
+)
+
+kable(results, caption = "Résultats du Calcul de Répétabilité (ISO 9283)", digits = 6)
+```
+
+
+## Conclusion Générale
+
+1. **Fiabilité du Système de Mesure** : L'analyse ANOVA (p-value =  `r round(summary(modele_anova)[[1]][["Pr(>F)"]][1], 3)`) a démontré qu'il n'y a aucune différence statistique significative entre les trois comparateurs. Le système de mesure est validé.
+
+2. **Stabilité du Procédé** : L'analyse de normalité (toutes $p_{values}$ > 0.05) montre que les erreurs du robot sont distribuées normalement. 
+Le procédé est stable et prévisible.
+
+3. **Performance du Robot** : Le calcul selon la norme ISO 9283 établit la répétabilité de position du robot à : $RP_L$ = `r round(RP_L, 4)`mm 
+
+4. **Verdict de Conformité** : La spécification du constructeur est de ±0.02 mm. Notre mesure statistique $RP_L$ (`r round(RP_L, 4)`mm), qui représente l'enveloppe de dispersion 3D du robot, est supérieure à cette tolérance.
+
+**Conclusion finale : Le robot est déclaré NON CONFORME à sa spécification de répétabilité**
