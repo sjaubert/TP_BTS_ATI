@@ -25,6 +25,7 @@ library(tidyr)    # Pour la mise en forme des données (pivot_longer)
 library(ggplot2)  # Pour les graphiques statiques (histogrammes, boxplots)
 library(plotly)   # Pour le graphique 3D interactif
 library(knitr)    # Pour afficher de jolis tableaux (kable)
+library(car)       # pour test de Levenne
 ```
 
 ## Introduction et Objectifs de l'Analyse
@@ -100,6 +101,21 @@ Puisque la $p_{value}$ > `r round(summary(modele_anova)[[1]][["Pr(>F)"]][1], 3)`
 
 **Conclusion de l'ANOVA** : Il n'y a pas de différence statistiquement significative entre les moyennes des trois comparateurs.
 
+
+### Test de l'homogénéité des variances (Test de Levenne)
+
+```{r echo=TRUE, warning=FALSE}
+# Nous utilisons les données au format long (donnees_long)
+# On teste si la 'Mesure' a la même variance en fonction du 'Comparateur'
+# Par défaut (center=median), cela exécute le test de Brown-Forsythe, 
+# qui est la version robuste (recommandée) du test de Levene.
+test_levene <- leveneTest(Mesure ~ Comparateur, data = donnees_long)
+
+# 4. Afficher les résultats (la p-value se lit dans la colonne Pr(>F))
+print(test_levene)
+```
+
+
 ## Vérification des Hypothèses (Normalité)
 
 **Objectif** : Valider l'hypothèse de normalité des données, qui sous-tend l'utilisation de l'ANOVA et des calculs statistiques de capabilité.
@@ -123,9 +139,36 @@ kable(normality_results, caption = "Résultats des Tests de Normalité (Shapiro-
 
 Pour les comparateurs C1, C2, C3, toutes les $p_{values}$ sont > 0.05.
 
-**Conclusion** : Nous considérons que les données sont normalement distribuées. 
+**Conclusion** : Nous considérons que les données sont normalement distribuées.
+
+Ci-dessous une représentation graphique (Q-Q plot).
+
+```{r warning=FALSE}
+# Mettre les 3 graphiques dans une seule fenêtre
+par(mfrow = c(1, 3))
+
+# Q-Q Plot pour C1
+donnees$C1 <- as.numeric(donnees$C1)
+qqnorm(donnees$C1, main = "Q-Q Plot C1")
+qqline(donnees$C1, col = "red")
+
+# Q-Q Plot pour C2
+donnees$C2 <- as.numeric(donnees$C2)
+qqnorm(donnees$C2, main = "Q-Q Plot C2")
+qqline(donnees$C2, col = "red")
+
+# Q-Q Plot pour C3
+donnees$C3 <- as.numeric(donnees$C3)
+qqnorm(donnees$C3, main = "Q-Q Plot C3")
+qqline(donnees$C3, col = "red")
+
+# Rétablir la fenêtre graphique par défaut
+par(mfrow = c(1, 1))
+```
+
 
 Le procédé est stable et prévisible.
+
 
 ## Calcul de la Répétabilité Robot (ISO 9283)
 
@@ -138,9 +181,9 @@ Le procédé est stable et prévisible.
 plot_ly(donnees, x = ~C1, y = ~C2, z = ~C3, type = 'scatter3d', mode = 'markers',
         marker = list(size = 5, color = 'blue', opacity = 0.8)) %>%
   layout(title = "Dispersion 3D des 30 Points de Mesure",
-         scene = list(xaxis = list(title = 'Axe X (mm)'),
-                      yaxis = list(title = 'Axe Y (mm)'),
-                      zaxis = list(title = 'Axe Z (mm)')))
+         scene = list(xaxis = list(title = 'C1 (mm)'),
+                      yaxis = list(title = 'C2 (mm)'),
+                      zaxis = list(title = 'C3 (mm)')))
 ```
 
 **Analyse visuelle** : Le nuage de points semble bien réparti, sans point aberrant.
